@@ -1,11 +1,11 @@
 package dev.ale.proyect.reservation.service;
 
 import dev.ale.proyect.reservation.exception.InvalidReservationException;
-import dev.ale.proyect.reservation.model.Events;
+import dev.ale.proyect.reservation.interfaces.IEventRepository;
+import dev.ale.proyect.reservation.interfaces.IReservationRepository;
+import dev.ale.proyect.reservation.model.Event;
 import dev.ale.proyect.reservation.model.ReservationStatus;
-import dev.ale.proyect.reservation.model.Reservations;
-import dev.ale.proyect.reservation.repository.EventsRepository;
-import dev.ale.proyect.reservation.repository.ReservationRepository;
+import dev.ale.proyect.reservation.model.Reservation;
 
 import java.util.List;
 import java.util.Objects;
@@ -14,29 +14,29 @@ import java.util.Optional;
 public class ReservationService {
 
     //Instance of reservation repository
-    private final ReservationRepository reservationRepository;
-    private final EventsRepository eventsRepository;
+    private final IReservationRepository reservationRepository;
+    private final IEventRepository eventsRepository;
 
-    public ReservationService(ReservationRepository reservationRepository, EventsRepository eventsRepository) {
+    public ReservationService(IReservationRepository reservationRepository, IEventRepository eventsRepository) {
         this.reservationRepository = reservationRepository;
         this.eventsRepository = eventsRepository;
     }
 
     //get all reservations
-    public List<Reservations> getAllReservations() throws InvalidReservationException {
+    public List<Reservation> getAllReservations() throws InvalidReservationException {
         return reservationRepository.allReservations();
     }
 
     //get Reservation by id
-    public Optional<Reservations> getReservationById(Long id) throws InvalidReservationException {
+    public Optional<Reservation> getReservationById(Long id) throws InvalidReservationException {
         return reservationRepository.findByIdReservation(id);
     }
 
     //save Reservation
-    public void saveReservation(Reservations reservation) throws InvalidReservationException {
+    public void saveReservation(Reservation reservation) throws InvalidReservationException {
         ReservationValidators.validate(reservation);
 
-        Events event = eventsRepository.getByIdEvent(reservation.getEventId())
+        Event event = eventsRepository.getByIdEvent(reservation.getEventId())
                 .orElseThrow(() -> new InvalidReservationException(
                         "El evento con ID: " + reservation.getEventId() + " no existe. No se puede crear la reserva."
                 ));
@@ -59,41 +59,39 @@ public class ReservationService {
     }
 
     //update Reservation
-    public void updateReservation(Reservations reservation) throws InvalidReservationException {
+    public void updateReservation(Reservation reservation) throws InvalidReservationException {
         //validates reservtion object
         ReservationValidators.validate(reservation);
 
         //the reservation may be updated only if exists
-        Reservations existingReservation = reservationRepository.findByIdReservation(reservation.getId())
-                .orElseThrow(()-> new InvalidReservationException("El evento con ID: "
+        Reservation existingReservation = reservationRepository.findByIdReservation(reservation.getId())
+                .orElseThrow(()-> new InvalidReservationException("La reserva con ID: "
                         + reservation.getId()
                         + " no existe. No se puede actualizar la reserva."));
 
-        Events event = eventsRepository.getByIdEvent(reservation.getEventId())
+        Event event = eventsRepository.getByIdEvent(reservation.getEventId())
                 .orElseThrow(() -> new InvalidReservationException(
                         "El evento con ID: " + reservation.getEventId() + " no existe."
                 ));
 
-        //If the reservation status is CONFIRMER, check seat availability
-        if(reservation.getStatus() == ReservationStatus.CONFIRMED ){
+        //If the reservation status is CONFIRMED, check seat availability
+        if (reservation.getStatus() == ReservationStatus.CONFIRMED) {
             int reservedSeats = reservationRepository.countReservedSeatsByEventId(reservation.getEventId());
-            int requestedSeats = reservation.getSeats();
-
-            //If the existing reservation is also CONFIRMED and for the same event, we need to subtract its seats from the total reserved seats
-            if(existingReservation.getStatus() == ReservationStatus.CONFIRMED && Objects.equals(existingReservation.getEventId(), reservation.getEventId())){
-                requestedSeats = reservation.getSeats() - existingReservation.getSeats();
+            //If the existing reservation is also CONFIRMED and for the same event, subtract its seats from the total
+            if (existingReservation.getStatus() == ReservationStatus.CONFIRMED
+                    && Objects.equals(existingReservation.getEventId(), reservation.getEventId())) {
+                reservedSeats -= existingReservation.getSeats();
             }
 
             //Check if there are enough seats available
-            if (requestedSeats + reservation.getSeats() > event.getCapacity()){
+            if (reservedSeats + reservation.getSeats() > event.getCapacity()) {
                 throw new InvalidReservationException(
                         "No hay suficientes asientos disponibles para el evento con ID: " + event.getId() +
                                 ". Capacidad del evento: " + event.getCapacity() +
                                 ", Asientos reservados: " + reservedSeats +
-                                ", Asientos solicitados: " + requestedSeats
+                                ", Asientos solicitados: " + reservation.getSeats()
                 );
             }
-
         }
 
         reservationRepository.updateReservation(reservation);

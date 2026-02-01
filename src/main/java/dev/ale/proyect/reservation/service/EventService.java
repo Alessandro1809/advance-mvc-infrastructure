@@ -2,11 +2,12 @@ package dev.ale.proyect.reservation.service;
 
 
 import dev.ale.proyect.reservation.exception.InvalidReservationException;
-import dev.ale.proyect.reservation.model.Events;
-import dev.ale.proyect.reservation.repository.EventsRepository;
+import dev.ale.proyect.reservation.interfaces.IEventRepository;
+import dev.ale.proyect.reservation.model.Event;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 //Make a service class is a good practice to separate the business logic from the controller and repository layers.
 
@@ -16,34 +17,39 @@ import java.util.Optional;
 
 public class EventService {
 
-    private final EventsRepository eventsRepository;
+    private static final Logger LOGGER = Logger.getLogger(EventService.class.getName());
+
+    private final IEventRepository eventsRepository;
 
     //constructor of the class
-    public EventService(EventsRepository eventsRepository) {
+    public EventService(IEventRepository eventsRepository) {
         this.eventsRepository = eventsRepository;
     }
 
     //Get all events
-    public List<Events> getAllEvents() throws InvalidReservationException {
+    public List<Event> getAllEvents() throws InvalidReservationException {
         return eventsRepository.allEvents();
     }
     //Get event by id
-    public Optional<Events> getEventById(Long id) {
+    public Optional<Event> getEventById(Long id) {
         return eventsRepository.getByIdEvent(id);
     }
 
-    public Optional<Events> getEventsByTitle(String title) throws InvalidReservationException {
+    public Optional<Event> getEventsByTitle(String title) throws InvalidReservationException {
+        if (title == null || title.isBlank()) {
+            throw new InvalidReservationException("El titulo no puede ser nulo o vacio");
+        }
         String ti = title.trim();
         return eventsRepository.findEventByTitle(ti);
     }
 
     //save Event
-    public void saveEvent( Events event) throws InvalidReservationException{
+    public void saveEvent( Event event) throws InvalidReservationException{
     //Here is where we write the logic to save an event
     EventValidator.validate(event);//This class only validate the event object
     if (!eventsRepository.existsEventById(event.getId())){//check if the event already exists
         eventsRepository.saveEvent(event);
-        System.out.println("\nEvento Guardado"+"\nID del evento:"+ event.getId() +"\nEl evento:" + event.getTitle() + " ha sido guardado exitosamente.");
+        LOGGER.info("Evento guardado. ID: " + event.getId() + ", titulo: " + event.getTitle());
     }else {
         throw new InvalidReservationException("El evento con ID: " + event.getId() + " ya existe.");
     }
@@ -51,22 +57,22 @@ public class EventService {
 
     //delete Event
     public void deleteEvent(Long id) throws InvalidReservationException {
-        Optional<Events> eventOptional = eventsRepository.getByIdEvent(id);//check if the event exists with an optional object
+        Optional<Event> eventOptional = eventsRepository.getByIdEvent(id);//check if the event exists with an optional object
         if (eventOptional.isPresent()){
             eventsRepository.deleteEvent(id);
-            System.out.println("\nEvento Eliminado"+"\nID del evento:"+ id +"\nEl evento ha sido eliminado exitosamente.");
+            LOGGER.info("Evento eliminado. ID: " + id);
         } else {
             throw new InvalidReservationException("El evento con ID: " + id + " no existe.");
         }
     }
 
     //update Event
-    public void updateEvent(Events event) throws InvalidReservationException {
+    public void updateEvent(Event event) throws InvalidReservationException {
         EventValidator.validate(event);//We need to validate the new event data
-        Optional<Events> existingEvent = eventsRepository.getByIdEvent(event.getId());//check if the event exists with an optional object
+        Optional<Event> existingEvent = eventsRepository.getByIdEvent(event.getId());//check if the event exists with an optional object
         if(existingEvent.isPresent()){
             eventsRepository.updateEvent(event);
-            System.out.println("\nEvento Actualizado"+"\nID del evento:"+ event.getId() +"\nEl evento:" + event.getTitle() + " ha sido actualizado exitosamente.");
+            LOGGER.info("Evento actualizado. ID: " + event.getId() + ", titulo: " + event.getTitle());
         } else {
             throw new InvalidReservationException("El evento con ID: " + event.getId() + " no existe.");
         }

@@ -9,11 +9,11 @@ import java.time.LocalDate;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Reservations {
-    Long id;
-    Long eventId;
-    String customerEmail;
-    int seats;
-    ReservationStatus status;
-    LocalDate date;
+public class Reservation {
+    private Long id;
+    private Long eventId;
+    private String customerEmail;
+    private int seats;
+    private ReservationStatus status;
+    private LocalDate date;
 }

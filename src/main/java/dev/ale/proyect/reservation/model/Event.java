@@ -11,10 +11,10 @@ import java.time.LocalDate;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Events {
-    Long id;
-    String title;
-    int capacity;
-    LocalDate date;
-    EventTags tag;
+public class Event {
+    private Long id;
+    private String title;
+    private int capacity;
+    private LocalDate date;
+    private EventTags tag;
 }

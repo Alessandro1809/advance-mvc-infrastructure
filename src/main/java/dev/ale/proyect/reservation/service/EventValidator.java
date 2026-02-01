@@ -1,11 +1,21 @@
 package dev.ale.proyect.reservation.service;
 
 import dev.ale.proyect.reservation.exception.InvalidReservationException;
-import dev.ale.proyect.reservation.model.Events;
+import dev.ale.proyect.reservation.model.Event;
+
+import java.time.LocalDate;
 
 public class EventValidator {
 
-    public static void validate(Events event) throws InvalidReservationException {
+    public static void validate(Event event) throws InvalidReservationException {
+        if (event == null) {
+            throw new InvalidReservationException("El evento no puede ser nulo");
+        }
+
+        if (event.getTitle() == null || event.getTitle().isBlank()) {
+            throw new InvalidReservationException("El titulo del evento no puede ser nulo o vacio");
+        }
+
         if (event.getCapacity() <= 0) {
             throw new InvalidReservationException("La capacidad del evento debe ser mayor a 0");
         }
@@ -14,7 +24,7 @@ public class EventValidator {
             throw new InvalidReservationException("La fecha del evento no puede ser nula y debe ser valida");
         }
 
-        if (event.getDate().isBefore(java.time.LocalDate.now())){
+        if (event.getDate().isBefore(LocalDate.now())){
             throw new InvalidReservationException("La fecha del evento no puede ser una fecha pasada, por favor ingrese una fecha valida");
         }
     }

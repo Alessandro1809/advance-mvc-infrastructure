@@ -1,17 +1,27 @@
 package dev.ale.proyect.reservation;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
-public class Main {
-    public static void main(String[] args) {
-        //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-        // to see how IntelliJ IDEA suggests fixing it.
-        System.out.println("Hello and welcome!");
+import dev.ale.proyect.reservation.controller.EventController;
+import dev.ale.proyect.reservation.controller.ReservationController;
+import dev.ale.proyect.reservation.interfaces.IEventRepository;
+import dev.ale.proyect.reservation.interfaces.IReservationRepository;
+import dev.ale.proyect.reservation.repository.EventsRepository;
+import dev.ale.proyect.reservation.repository.ReservationRepository;
+import dev.ale.proyect.reservation.service.EventService;
+import dev.ale.proyect.reservation.service.ReservationService;
+import dev.ale.proyect.reservation.view.View;
 
-        for (int i = 1; i <= 5; i++) {
-            //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-            // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-            System.out.println("i = " + i);
-        }
+public class Main {
+    static void main() {
+        IEventRepository eventsRepository = new EventsRepository();
+        IReservationRepository reservationRepository = new ReservationRepository();
+
+        EventService eventService = new EventService(eventsRepository);
+        ReservationService reservationService = new ReservationService(reservationRepository, eventsRepository);
+
+        EventController eventController = new EventController(eventService);
+        ReservationController reservationController = new ReservationController(reservationService);
+
+        View view = new View(eventController, reservationController);
+        view.start();
     }
 }

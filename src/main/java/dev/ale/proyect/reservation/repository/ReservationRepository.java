@@ -79,7 +79,8 @@ public class ReservationRepository implements IReservationRepository {
     public int countReservedSeatsByEventId(Long eventId) {
         return reservations.stream()
                 .filter(reservation -> Objects.equals(reservation.getEventId(), eventId))
-                .filter(reservation -> reservation.getStatus() == ReservationStatus.CONFIRMED)
+                .filter(reservation -> reservation.getStatus() == ReservationStatus.CONFIRMED
+                        || reservation.getStatus() == ReservationStatus.PENDING)
                 .mapToInt(Reservation::getSeats)
                 .sum();
     }

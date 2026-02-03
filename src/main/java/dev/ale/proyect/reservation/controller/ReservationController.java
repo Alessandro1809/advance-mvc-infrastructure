@@ -27,14 +27,12 @@ public class ReservationController {
 
     public void updateReservation(Reservation reservation) throws InvalidReservationException {
         ReservationValidators.validate(reservation);
-        reservationService.saveReservation(reservation);
+        reservationService.updateReservation(reservation);
     }
 
     public void removeReservation(Long id) throws InvalidReservationException {
         ReservationValidators.validateId(id);
-        reservationService.getReservationById(id)
-                .orElseThrow(() -> new InvalidReservationException("La reserva con ID: " + id + " no existe. No se puede eliminar."));
-        reservationService.getReservationById(id);
+        reservationService.deleteReservation(id);
     }
 
     public List<Reservation> getAllReservations() throws InvalidReservationException {

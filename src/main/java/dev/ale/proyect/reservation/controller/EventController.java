@@ -18,19 +18,25 @@ public class EventController {
     }
 
     //Methods that call the service methods
-    public void AddEvent(Event event) throws InvalidReservationException {
+    public void addEvent(Event event) throws InvalidReservationException {
         //We need to validate the event before saving it
         EventValidator.validate(event);
         //Now we can save the event using the service(remember the controller only calls the service methods)
         eventService.saveEvent(event);
     }
+    public void AddEvent(Event event) throws InvalidReservationException {
+        addEvent(event);
+    }
     public void RemoveEvent(Long id) throws InvalidReservationException {
         EventValidator.validateId(id);
         eventService.deleteEvent(id);
     }
+    public void removeEvent(Long id) throws InvalidReservationException {
+        RemoveEvent(id);
+    }
     public void updateEvent(Event event) throws InvalidReservationException {
         EventValidator.validate(event);
-        eventService.saveEvent(event);
+        eventService.updateEvent(event);
     }
     public List<Event> getAllEvents() throws InvalidReservationException {
         return eventService.getAllEvents();

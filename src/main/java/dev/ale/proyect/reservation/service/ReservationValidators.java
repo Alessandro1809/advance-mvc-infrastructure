@@ -35,5 +35,10 @@ public class ReservationValidators {
             throw new InvalidReservationException("El estado de la reserva no puede ser nulo");
         }
     }
+    public static void validateId(Long id) throws InvalidReservationException {
+        if (id == null || id <= 0) {
+            throw new InvalidReservationException("El ID de la reserva no puede ser nulo o menor o igual a 0");
+        }
+    }
 
 }

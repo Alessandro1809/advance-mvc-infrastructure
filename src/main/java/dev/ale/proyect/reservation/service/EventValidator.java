@@ -7,7 +7,7 @@ import java.time.LocalDate;
 
 public class EventValidator {
 
-    public static void validate(Event event) throws InvalidReservationException {
+    public static void validate(Event event ) throws InvalidReservationException {
         if (event == null) {
             throw new InvalidReservationException("El evento no puede ser nulo");
         }
@@ -26,6 +26,11 @@ public class EventValidator {
 
         if (event.getDate().isBefore(LocalDate.now())){
             throw new InvalidReservationException("La fecha del evento no puede ser una fecha pasada, por favor ingrese una fecha valida");
+        }
+    }
+    public static void validateId(Long id) throws InvalidReservationException {
+        if (id == null || id <= 0) {
+            throw new InvalidReservationException("El ID del evento no puede ser nulo o menor o igual a 0");
         }
     }
 
